@@ -75,36 +75,49 @@ public class GameServer implements Runnable, Constants{
 			switch(gameStage){ // process
 				case WAITING_FOR_PLAYERS:
 					if (playerData.startsWith("CONNECT")){
+						System.out.println("-Player Data- "+playerData);
 						String tokens[] = playerData.split(" ");
-						NetPlayer player=new NetPlayer(tokens[1],packet.getAddress(),packet.getPort());
+						NetPlayer player=new NetPlayer(tokens[1],packet.getAddress(),packet.getPort(), Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]));
 						System.out.println("Player connected: "+tokens[1]);
 						game.update(tokens[1].trim(),player);
-						broadcast("CONNECTED "+tokens[1]);
+						broadcast("CONNECTED "+tokens[1]+" "+playerCount);
 						playerCount+=1;
-						if (playerCount==numPlayers){
+						if (playerCount>=2){
 							gameStage=GAME_START;
 						}
 					}
 					//System.out.println("Player count: "+playerCount);
 					break;	
 				case GAME_START:
-					System.out.println("Game State: START");
-					broadcast("START");
-					gameStage=IN_PROGRESS;
+					if(playerCount < 4){
+						System.out.println("Game State: START");
+						broadcast(game.toString());
+						gameStage=IN_PROGRESS;
+					}else{
+						//max player limit reached
+					}
 					break;
 				case IN_PROGRESS:
 					//System.out.println("Game State: IN_PROGRESS");
-					System.out.println("Player data: "+ playerData);
+					// System.out.println("Player data: "+ playerData);
 					//Player data was received!
 					if (playerData.startsWith("PLAYER")){
 						String[] playerInfo = playerData.split(" ");					  
 						String pname =playerInfo[1];
 						int x = Integer.parseInt(playerInfo[2].trim());
 						int y = Integer.parseInt(playerInfo[3].trim());
+						int xPos = Integer.parseInt(playerInfo[4].trim());
+						int yPos = Integer.parseInt(playerInfo[5].trim());
+						boolean hasBomb = Boolean.parseBoolean(playerInfo[6].trim());
+
 						//Get the player from the game state
 						NetPlayer player=(NetPlayer)game.getPlayers().get(pname);					  
 						player.setX(x);
 						player.setY(y);
+						player.setXPos(xPos);
+						player.setYPos(yPos);
+						player.setBomb(hasBomb);
+
 						//Update the game state
 						game.update(pname, player);
 						//Send to all the updated game state
@@ -118,7 +131,6 @@ public class GameServer implements Runnable, Constants{
 
 	public static void main(String args[]){
 		new GameServer(2);
-		
 	}
 }
 

@@ -7,52 +7,38 @@ import java.net.InetAddress;
  *
  */
 
-public class NetPlayer {
+public class NetPlayer implements Constants{
 	private InetAddress address; //network address of the player
 	private int port; //port number
 	private String name; //name of player
-	private int x,y; //The position of player
+	private int x,y; //The board position of player
+	private int xPos, yPos; //UI position
 	private boolean isAlive;
+	private boolean hasBomb;
 
-	/**
-	 * Constructor
-	 * @param name
-	 * @param address
-	 * @param port
-	 */
-	public NetPlayer(String name,InetAddress address, int port){
+	public NetPlayer(String name,InetAddress address, int port, int x, int y){
 		this.address = address;
 		this.port = port;
 		this.name = name;
 		this.isAlive = false;
+		this.x = x;
+		this.y = y;
+		this.xPos = 100+DIMENSION*x;
+		this.yPos = 50+DIMENSION*y;
 	}
 
-	/**
-	 * Returns the address
-	 * @return
-	 */
 	public InetAddress getAddress(){
 		return address;
 	}
 
-	/**
-	 * Returns the port number
-	 * @return
-	 */
 	public int getPort(){
 		return port;
 	}
 
-	/**
-	 * Returns the name of the player
-	 * @return
-	 */
 	public String getName(){
 		return name;
 	}
 	
-
-
 	public boolean getStatus(){
 		return isAlive;
 	}
@@ -61,38 +47,43 @@ public class NetPlayer {
 		this.isAlive = bool;
 	}
 
-	/**
-	 * Sets the X coordinate of the player
-	 * @param x
-	 */
 	public void setX(int x){
 		this.x=x;
 	}
 	
-	
-	/**
-	 * Returns the X coordinate of the player
-	 * @return
-	 */
 	public int getX(){
 		return x;
 	}
 	
-	
-	/**
-	 * Returns the y coordinate of the player
-	 * @return
-	 */
 	public int getY(){
 		return y;
 	}
 	
-	/**
-	 * Sets the y coordinate of the player
-	 * @param y
-	 */
 	public void setY(int y){
 		this.y=y;		
+	}
+
+	public void setXPos(int xPos){
+		this.xPos = xPos;
+	}
+	public void setYPos(int yPos){
+		this.yPos = yPos;
+	}
+
+	public int getXPos(){
+		return this.xPos;
+	}
+
+	public int getYPos(){
+		return this.yPos;
+	}
+
+	public boolean getBomb(){
+		return this.hasBomb;
+	}
+
+	public void setBomb(boolean hasBomb){
+		this.hasBomb = hasBomb;
 	}
 
 	/**
@@ -103,7 +94,11 @@ public class NetPlayer {
 		retval+="PLAYER ";
 		retval+=name+" ";
 		retval+=x+" ";
-		retval+=y;
+		retval+=y+" ";
+		retval+=xPos+" ";
+		retval+=yPos+" ";
+		retval+=hasBomb;
+
 		return retval;
 	}	
 }

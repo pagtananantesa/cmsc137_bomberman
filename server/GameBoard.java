@@ -21,15 +21,18 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 
 	int x,y,prevX,prevY; //for board config
 	int xPos, yPos; //for player movement UI
-	JLabel player = new JLabel();
 	boolean hasBomb;
 	int xBomb, yBomb; //bomb position
 	char[][] board = new char[11][15];
 	ArrayList<Point> grassPlots = new ArrayList<Point>();
+	ArrayList<Point> prevPosition = new ArrayList<Point>();
+	HashMap<String, JLabel> playerList = new HashMap<String, JLabel>();
 	HashMap<Point, JLabel> boxMap = new HashMap<Point, JLabel>();
 	Container c;
 
+
 	public GameBoard(String server,String name, Container c) throws Exception{
+		System.out.println("-----------------------"+name);
 		this.c = c;
 		this.server=server;
 		this.name=name;
@@ -91,13 +94,14 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		Point position = grassPlots.get(rand.nextInt((int)grassPlots.size()));
 		this.x = (int)position.getX();
 		this.y = (int)position.getY();
-		board[this.x][this.y] = 'X';
 		this.yPos = 50+DIMENSION*y;
 		this.xPos = 100+DIMENSION*x;
 
-		player.setIcon(new ImageIcon("img/lisa.png"));
-		player.setBounds(this.yPos, this.xPos, DIMENSION, DIMENSION);
-		this.add(player);
+		
+
+		// player.setIcon(new ImageIcon("img/lisa.png"));
+		// player.setBounds(this.yPos, this.xPos, DIMENSION, DIMENSION);
+		// this.add(player);
 
 		//background image
 		JLabel background = new JLabel(new ImageIcon("img/BACKGROUND.png"));
@@ -109,27 +113,16 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		this.addMouseListener(new MouseListener(){
 			public void mousePressed(MouseEvent me){
 		        requestFocus();
-		        System.out.println("Mouse Pressed in JPanel");
 		    }
-
 		    public void mouseReleased(MouseEvent me){}
-
 		    public void mouseClicked(MouseEvent me){}
-
 		    public void mouseEntered(MouseEvent me){}
-
 		    public void mouseExited(MouseEvent me){}
-
 		});
 		
 		this.addFocusListener(new FocusListener(){
-		    public void focusGained(FocusEvent fe){
-		        System.out.println("Focus gained in JPanel");
-		    }
-
-		    public void focusLost(FocusEvent fe){
-		        System.out.println("Focus lost in JPanel");
-		    }
+		    public void focusGained(FocusEvent fe){}
+		    public void focusLost(FocusEvent fe){}
 		});
 
 		t.start();	
@@ -143,6 +136,107 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		    socket.send(localDatagramPacket);
         }catch (Exception localException) {}
 		
+	}
+
+	public void boom(String pname, int x, int y){
+		String name = new String(pname);
+		this.xBomb = new Integer(x);
+		this.yBomb = new Integer(y);
+		board[this.xBomb][this.yBomb] = 'B';
+		Bomb b = new Bomb(this.xBomb, this.yBomb);
+		this.add(b, 0);
+
+		JLabel flameUp = new JLabel(new ImageIcon("img/flame_up.gif"));
+		JLabel flameDown = new JLabel(new ImageIcon("img/flame_down.gif"));
+		JLabel flameRight = new JLabel(new ImageIcon("img/flame_right.gif"));
+		JLabel flameLeft = new JLabel(new ImageIcon("img/flame_left.gif"));
+		JLabel flameCenter = new JLabel(new ImageIcon("img/flame_body.gif"));
+		javax.swing.Timer bombT = new javax.swing.Timer(3000,  new ActionListener() {
+			@Override
+	        public void actionPerformed(ActionEvent evt) {
+	    		remove(b);
+	    		board[xBomb][yBomb] = '-';
+
+	            revalidate();
+	            repaint();
+	            c.revalidate();
+	            c.repaint();
+
+
+				//FLAME UP
+		        if(board[xBomb-1][yBomb] == 'b'){ //if box
+		        	remove((JLabel)boxMap.get(new Point(xBomb-1, yBomb)));
+		        	board[xBomb-1][yBomb] = '-';
+		        }
+		        if(board[xBomb-1][yBomb] == '-' || board[xBomb-1][yBomb] == 'X'){
+		            flameUp.setBounds(50+DIMENSION*yBomb, 100+DIMENSION*(xBomb-1), DIMENSION, DIMENSION);
+		            add(flameUp, 0);
+		        }
+
+		        //FLAME DOWN
+		        if(board[xBomb+1][yBomb] == 'b'){
+		        	remove((JLabel)boxMap.get(new Point(xBomb+1, yBomb)));
+		        	board[xBomb+1][yBomb] = '-';
+		        }
+		        if(board[xBomb+1][yBomb] == '-' || board[xBomb+1][yBomb] == 'X'){
+		            flameDown.setBounds(50+DIMENSION*yBomb, 100+DIMENSION*(xBomb+1), DIMENSION, DIMENSION);
+		            add(flameDown, 0);
+		        }
+
+		        //FLAME RIGHT
+		        if(board[xBomb][yBomb+1] == 'b'){
+		        	remove((JLabel)boxMap.get(new Point(xBomb, yBomb+1)));
+		        	board[xBomb][yBomb+1] = '-';
+		        }
+		        
+		        if(board[xBomb][yBomb+1] == '-' || board[xBomb][yBomb+1] == 'X'){
+		            flameRight.setBounds(50+DIMENSION*(yBomb+1), 100+DIMENSION*xBomb, DIMENSION, DIMENSION);
+		            add(flameRight, 0);
+		        }
+
+		        //FLAME LEFT
+		        if(board[xBomb][yBomb-1] == 'b'){
+		        	remove((JLabel)boxMap.get(new Point(xBomb, yBomb-1)));
+		        	board[xBomb][yBomb-1] = '-';
+		        }
+		        
+		        if(board[xBomb][yBomb-1] == '-' || board[xBomb][yBomb-1] == 'X'){
+		            flameLeft.setBounds(50+DIMENSION*(yBomb-1), 100+DIMENSION*xBomb, DIMENSION, DIMENSION);
+		            add(flameLeft, 0);
+		        }
+
+
+		        flameCenter.setBounds(50+DIMENSION*yBomb, 100+DIMENSION*xBomb, DIMENSION, DIMENSION);
+		        add(flameCenter, 0);
+
+		        revalidate();
+		        repaint();
+		        c.revalidate();
+		        c.repaint();
+		    }
+		});
+	    bombT.start();
+
+    	new java.util.Timer().schedule( 
+        new java.util.TimerTask() {
+            @Override
+            public void run() {
+				bombT.stop();
+	    		remove(flameUp);
+	    		remove(flameDown);
+	    		remove(flameRight);
+	    		remove(flameLeft);
+	    		remove(flameCenter);
+
+
+	            revalidate();
+	            repaint();
+	            c.revalidate();
+	            c.repaint();
+	        }
+        }, 
+        4000 
+		);
 	}
 	
 	public void run(){
@@ -162,22 +256,75 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 
 			//Study the following kids. 
 			if (!connected && serverData.startsWith("CONNECTED")){
-				System.out.println("serverdata: "+serverData);
 				connected=true;
 				System.out.println("Connected.");
-				// Random rand = new Random();
-				// this.x = rand.nextInt(11) + 0;
-				// this.y = rand.nextInt(15) + 0;
-				// this.board[x][y] = 'p';
-				send("PLAYER "+name+" "+x+" "+y);
+
+				String tokens[] = serverData.split(" ");
+				String pname = tokens[1];
+				//DO UI SA TAAS use tokens[2] para sa image
 
 			}else if (!connected){
-				System.out.println("serverdata: "+serverData);
 				System.out.println("Connecting..");				
-				send("CONNECT "+name);
+				send("CONNECT "+name+" "+x+" "+y);
 			}else if (connected){
-				System.out.println("serverdata: "+serverData);
+				// System.out.println("serverdata: "+serverData);
+				if (serverData.startsWith("PLAYER")){
+					String[] playersInfo = serverData.split(":");
+					for (int i=0;i<playersInfo.length;i++){
+						String[] playerInfo = playersInfo[i].split(" ");
+						String pname =playerInfo[1];
+						int x = Integer.parseInt(playerInfo[2]);
+						int y = Integer.parseInt(playerInfo[3]);
+						int xPos = Integer.parseInt(playerInfo[4]);
+						int yPos = Integer.parseInt(playerInfo[5]);
+						boolean hasBomb = Boolean.parseBoolean(playerInfo[6].trim());
+
+						if(!playerList.keySet().contains(pname) || playerList.isEmpty()){ //if player not in the list yet
+							System.out.println(pname+": ("+x+", "+y+")");
+
+							board[x][y] = 'X';
+							JLabel player = new JLabel();
+							Point prev = new Point(x,y);
+							if(i == 0){
+								player.setIcon(new ImageIcon("img/lisa.png"));
+							}else if(i == 1){
+								player.setIcon(new ImageIcon("img/rosee.png"));
+							}else if(i == 2){
+								player.setIcon(new ImageIcon("img/jisoo.png"));
+							}else if(i == 3){
+								player.setIcon(new ImageIcon("img/jennie.png"));
+							}
+							player.setBounds(yPos, xPos, DIMENSION, DIMENSION);
+							playerList.put(pname, player);
+							prevPosition.add(prev);
+							this.add(player,0);
+						}else{
+							if(hasBomb){
+								// boom(pname, x, y);
+							}else{
+								//update the player UI position
+								playerList.get(pname).setBounds(yPos, xPos, DIMENSION, DIMENSION);
+
+								//update the configuration: change the previous position
+								int prevX = (int)prevPosition.get(i).getX();
+								int prevY = (int)prevPosition.get(i).getY();
+								if(board[prevX][prevY] == 'B'){
+									board[prevX][prevY] = 'B';
+								}else{
+									board[prevX][prevY] = '-';
+								}
+							}
+							prevPosition.set(i, new Point(x, y));
 							
+						}
+
+
+						this.revalidate();
+						this.repaint();
+						c.revalidate();
+						c.repaint();
+					}
+				}			
 			}			
 		}
 	}
@@ -185,233 +332,64 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 	class KeyHandler extends KeyAdapter{
 		public void keyPressed(KeyEvent ke){
 			if(ke.getKeyCode()==KeyEvent.VK_RIGHT){
-				// System.out.println("----------------RIGHT");
-
 				if(yPos%DIMENSION == 0 &&  board[x][y+1] != '-'){
 				}else{
 					if(xPos%DIMENSION <=4 || xPos%DIMENSION >= 46){
 						yPos += 2;
-						player.setBounds(yPos, xPos, DIMENSION, DIMENSION);
-					
 						if(yPos%DIMENSION == 24){
-						//MOVE
-							if(board[x][y] == 'B'){
-								board[x][y] = 'B';
-							}else{
-								board[x][y] = '-';
-							}
 							y = (yPos-50)/DIMENSION+1;
-							board[x][y] = 'X';
 						}
 					}
-					
 				}
 			}
 			if(ke.getKeyCode()==KeyEvent.VK_LEFT){
-				// System.out.println("----------------LEFT");
-
 				if(yPos%DIMENSION == 0 &&  board[x][y-1] != '-'){
 				}else{
 					if(xPos % DIMENSION <= 4 || xPos % DIMENSION >= 46){
 						yPos -= 2;
-						player.setBounds(yPos, xPos, DIMENSION, DIMENSION);
-
 						if(yPos % DIMENSION == 24){
-							if(board[x][y] == 'B'){
-								board[x][y] = 'B';
-							}else{
-								board[x][y] = '-';
-							}
 							y = (yPos-50)/DIMENSION;
-							board[x][y] = 'X';
 						}
 					}
 				}
 			}
 			if(ke.getKeyCode()==KeyEvent.VK_UP){
-				// System.out.println("----------------UP");
-
 				if(xPos%DIMENSION == 0 &&  board[x-1][y] != '-'){
 				}else{
 					if(yPos % DIMENSION <= 4 || yPos % DIMENSION >= 46){
 						xPos -= 2;
-						player.setBounds(yPos, xPos, DIMENSION, DIMENSION);
 						if(xPos % DIMENSION == 24){
-							if(board[x][y] == 'B'){
-								board[x][y] = 'B';
-							}else {
-								board[x][y] = '-';
-							}
 							x = (xPos-100)/DIMENSION;
-							board[x][y] = 'X';
 						}
 					}
 				}
 			}
 			if(ke.getKeyCode()==KeyEvent.VK_DOWN){
-				// System.out.println("----------------DOWN");
-
 				if(xPos%DIMENSION == 0 &&  board[x+1][y] != '-'){
 				}else{
 					if(yPos % DIMENSION <= 4 || yPos % DIMENSION >= 46){
 						xPos += 2;
-						player.setBounds(yPos, xPos, DIMENSION, DIMENSION);
 						if(xPos % DIMENSION == 24){
-							if(board[x][y] == 'B'){
-								board[x][y] = 'B';
-							}else{
-								board[x][y] = '-';
-							}
 							x = (xPos-100)/DIMENSION+1;
-							board[x][y] = 'X';
 						}
 					}
 				}
 			}
 			if(ke.getKeyCode()==KeyEvent.VK_ENTER){
-				// System.out.println("----------------BOMB");
-				board[x][y] = 'B';
-
 				if(!hasBomb){
 					hasBomb = true;
-					xBomb = xPos;
-					yBomb = yPos;
-
-					Bomb b = new Bomb(x, y);
-					add(b, 0);
-
-
-					ArrayList<Integer> variables= new ArrayList<Integer>();
-					variables.add(x); //index 0 xPos
-					variables.add(y); //index 1 yPos
-
-
-					JLabel flameUp = new JLabel(new ImageIcon("img/flame_up.gif"));
-					JLabel flameDown = new JLabel(new ImageIcon("img/flame_down.gif"));
-					JLabel flameRight = new JLabel(new ImageIcon("img/flame_right.gif"));
-					JLabel flameLeft = new JLabel(new ImageIcon("img/flame_left.gif"));
-				    JLabel flameCenter = new JLabel(new ImageIcon("img/flame_body.gif"));
-
-					javax.swing.Timer bombT = new javax.swing.Timer(3000,  new ActionListener() {
-						@Override
-				        public void actionPerformed(ActionEvent evt) {
-				            remove(b);
-				            int x = variables.get(0);
-				            int y = variables.get(1);
-				            board[x][y] = '-';
-
-
-				            revalidate();
-				            repaint();
-
-
-				            //FLAME UP
-				            if(board[x-1][y] == 'b'){ //if box
-				            	remove((JLabel)boxMap.get(new Point(x-1, y)));
-				            	board[x-1][y] = '-';
-				            }
-
-				            
-				            if(board[x-1][y] == '-' || board[x-1][y] == 'X'){
-					            flameUp.setBounds(50+DIMENSION*y, 100+DIMENSION*(x-1), DIMENSION, DIMENSION);
-					            add(flameUp, 0);
-				            }
-
-				            //FLAME DOWN
-				            if(board[x+1][y] == 'b'){
-				            	remove((JLabel)boxMap.get(new Point(x+1, y)));
-				            	board[x+1][y] = '-';
-				            }
-				            
-				            if(board[x+1][y] == '-' || board[x+1][y] == 'X'){
-					            flameDown.setBounds(50+DIMENSION*y, 100+DIMENSION*(x+1), DIMENSION, DIMENSION);
-					            add(flameDown, 0);
-				            }
-
-				            //FLAME RIGHT
-				            if(board[x][y+1] == 'b'){
-				            	remove((JLabel)boxMap.get(new Point(x, y+1)));
-				            	board[x][y+1] = '-';
-				            }
-				            
-				            if(board[x][y+1] == '-' || board[x][y+1] == 'X'){
-					            flameRight.setBounds(50+DIMENSION*(y+1), 100+DIMENSION*x, DIMENSION, DIMENSION);
-					            add(flameRight, 0);
-				            }
-
-				            //FLAME LEFT
-				            if(board[x][y-1] == 'b'){
-				            	remove((JLabel)boxMap.get(new Point(x, y-1)));
-				            	board[x][y-1] = '-';
-				            }
-				            
-				            if(board[x][y-1] == '-' || board[x][y-1] == 'X'){
-					            flameLeft.setBounds(50+DIMENSION*(y-1), 100+DIMENSION*x, DIMENSION, DIMENSION);
-					            add(flameLeft, 0);
-				            }
-
-
-				            flameCenter.setBounds(50+DIMENSION*y, 100+DIMENSION*x, DIMENSION, DIMENSION);
-				            add(flameCenter, 0);
-
-				            revalidate();
-				            repaint();
-				            c.revalidate();
-				            c.repaint();
-
-				        }
-
-				    });
-				    bombT.start();
-
-				   	new java.util.Timer().schedule( 
-			        new java.util.TimerTask() {
-			            @Override
-			            public void run() {
-			                bombT.stop();
-			                remove(flameUp);
-			                remove(flameDown);
-			                remove(flameLeft);
-			                remove(flameRight);
-			                remove(flameCenter);
-
-			                revalidate();
-				            repaint();
-				            c.revalidate();
-				            c.repaint();
-							hasBomb = false;
-							System.out.println("NO BOMB");
-			            }
-			        }, 
-			        4000 
-					);
-				}else{
-					xBomb = 0;
-					yBomb = 0;
 				}
 			}
 
-	        revalidate();
-	        repaint();
-	        c.revalidate();
-			c.repaint();
-
-			send("PLAYER "+name+" "+x+" "+y);
+			send("PLAYER "+name
+				+" "+x
+				+" "+y
+				+" "+xPos
+				+" "+yPos
+				+" "+hasBomb
+				);
 		}
 		
 	}
-
-	// public static void main(String args[]) throws Exception{
-	// 	JFrame frame = new JFrame("Bombayah");
-	// 	frame.setPreferredSize(new Dimension(1200, 700));
-	// 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	// 	Container c = frame.getContentPane();
-	// 	c.setLayout(new BorderLayout());
-
-	// 	GameBoard gamePanel = new GameBoard(args[0],args[1]);
-	// 	c.add(gamePanel);
-
-	// 	frame.pack();
-	// }	
 
 }

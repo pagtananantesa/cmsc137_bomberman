@@ -11,6 +11,7 @@ public interface Constants {
 	/**
 	 * Game states.
 	 */
+	public static final int DIMENSION=50;
 	public static final int GAME_START=0;
 	public static final int IN_PROGRESS=1;
 	public final int GAME_END=2;
