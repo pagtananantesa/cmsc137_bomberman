@@ -243,6 +243,8 @@ public class Bombayah {
 		logo.setBounds(135,50,190,170);
 		menu.add(logo);
 
+//update
+
 		JButton about = new JButton("About");
 		about.setBounds(170,420,90,25);
 		menu.add(about);
@@ -252,7 +254,7 @@ public class Bombayah {
 		menuFrame.pack();
 		menuFrame.setVisible(true);
 		
-		
+//til here		
 		find.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				playerAttr.add(0, uname.getText());
@@ -274,6 +276,7 @@ public class Bombayah {
 
 		});
 
+//update
 		about.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 
@@ -291,6 +294,7 @@ public class Bombayah {
 			}
 		});
 
+//til here
 		createLobby.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				playerAttr.add(0, uname.getText());
