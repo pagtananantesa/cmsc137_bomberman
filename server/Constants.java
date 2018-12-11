@@ -2,7 +2,6 @@
 
 /**
  * Important game constants
- * @author Joseph Anthony C. Hermocill
  *
  */
 public interface Constants {

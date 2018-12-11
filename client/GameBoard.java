@@ -255,7 +255,6 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		board[this.xBomb][this.yBomb] = 'V';
 		Bomb b = new Bomb(this.xBomb, this.yBomb);
 		this.add(b, 0);
-		System.out.println("sadadsa");
 
 		JLabel flameUp = new JLabel(new ImageIcon("img/flame_up.gif"));
 		JLabel flameDown = new JLabel(new ImageIcon("img/flame_down.gif"));
@@ -320,15 +319,8 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		        add(flameCenter, 0);
 
 				
-				for(int k=0;k<11;k++){
-					for(int j=0; j<15; j++){
-						System.out.print(board[k][j]+" ");
-					}
-					System.out.println();
-				}
 
 				Iterator iter = playerPos.keySet().iterator();
-				System.out.println("BOMB x:"+xBomb+" y: "+yBomb);
 				while(iter.hasNext()){
 					String key = (String)iter.next();
 					if(playerPos.get(key).getX() == xBomb && playerPos.get(key).getY() == yBomb){
@@ -360,13 +352,6 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 					
 				}
 				
-				for(int k=0;k<11;k++){
-					for(int j=0; j<15; j++){
-						System.out.print(board[k][j]+" ");
-					}
-					System.out.println();
-				}
-				System.out.println(playerList.size());
 				if(playerList.size() == 1){
 					iter = playerPos.keySet().iterator();
 					send("WINNER "+(String)iter.next());
@@ -421,7 +406,6 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 			//Study the following kids. 
 			if (!connected && serverData.startsWith("CONNECTED")){
 				connected=true;
-				System.out.println("Connected.");
 
 				String tokens[] = serverData.split(" ");
 				String pname = tokens[1];
@@ -433,7 +417,6 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 			}else if (connected){
 				// System.out.println("serverdata: "+serverData);
 				if(serverData.startsWith("RESET")){
-					System.out.println("LEVEL "+level);
 					if(level > 3){
 						//end game
 						System.out.println("END GAME");
@@ -455,7 +438,6 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 						boolean hasBomb = Boolean.parseBoolean(playerInfo[6].trim());
 
 						if(!playerList.keySet().contains(pname) || playerList.isEmpty()){ //if player not in the list yet
-							System.out.println(pname+": ("+x+", "+y+")");
 
 							board[x][y] = 'X';
 							JLabel player = new JLabel();

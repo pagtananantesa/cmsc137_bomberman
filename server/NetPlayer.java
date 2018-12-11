@@ -3,7 +3,6 @@ import java.net.InetAddress;
 
 /**
  * This class encapsulates a network players
- * @author Joseph Anthony C. Hermocilla
  *
  */
 
