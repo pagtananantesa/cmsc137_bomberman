@@ -82,7 +82,7 @@ public class GameServer implements Runnable, Constants{
 						game.update(tokens[1].trim(),player);
 						broadcast("CONNECTED "+tokens[1]+" "+playerCount);
 						playerCount+=1;
-						if (playerCount>=2){
+						if (playerCount>=3){
 							gameStage=GAME_START;
 						}
 					}
