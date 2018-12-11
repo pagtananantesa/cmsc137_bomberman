@@ -47,17 +47,76 @@ public class Bombayah {
 
 		GameBoard gamePanel = new GameBoard(address, name, c);
 
-		JLabel miniLogo = new JLabel(new ImageIcon("img/logo.gif"));
-		miniLogo.setBounds(950,5,189,170);
+		JLabel miniLogo = new JLabel(new ImageIcon("img/miniLogo.gif"));
+		miniLogo.setBounds(5,5,90,90);
 		c.add(miniLogo,0);
 
-		JButton quitpic = new JButton();
-		quitpic.setIcon(new ImageIcon("img/quit.png"));
-		quitpic.setBounds(10,10,96,27);
-		c.add(quitpic,0);
 
 
 		
+		JButton controls = new JButton("Controls?");
+		controls.setBackground(Color.RED);
+		controls.setBounds(910,20,110,25);
+		c.add(controls);
+
+		JButton poweroff = new JButton();
+		poweroff.setIcon(new ImageIcon("img/poweroff.png"));
+		poweroff.setBounds(1130,10,50,50);
+		poweroff.setOpaque(false);
+		poweroff.setContentAreaFilled(false);
+		poweroff.setBorderPainted(false);
+		c.add(poweroff);
+
+		JButton info = new JButton();
+		info.setIcon(new ImageIcon("img/instruction.png"));
+		info.setBounds(1050,10,50,50);
+		info.setOpaque(false);
+		info.setContentAreaFilled(false);
+		info.setBorderPainted(false);
+		c.add(info);
+
+		
+
+		controls.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+
+				JFrame control = new JFrame("Controls");
+				control.setPreferredSize(new Dimension(160,170));
+				Container ccc = control.getContentPane();
+				ccc.setLayout(new GridLayout());
+				
+				JLabel controls = new JLabel(new ImageIcon("img/controls.png"));
+				controls.setBounds(0,0,150,150);
+				ccc.add(controls);
+				control.pack();
+				control.setVisible(true);
+			}
+
+		});
+
+		info.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+
+				JFrame instruction = new JFrame("Mechanics & Instructions");
+				instruction.setPreferredSize(new Dimension(267,356));
+				Container contain = instruction.getContentPane();
+				contain.setLayout(new GridLayout());
+				contain.setBackground(Color.PINK);
+
+				JLabel mechanics = new JLabel(new ImageIcon("img/mech.png"));
+				JLabel controls = new JLabel();
+				mechanics.setBounds(0,0,267,356);
+				contain.add(mechanics);
+//				contain.add(controls);
+				instruction.pack();
+				instruction.setVisible(true);
+
+
+			}
+		});
+
+//ui update ends here		
+
 		//CHAT BOX GUI---------------------------------------------------
 		this.displayLobby.setBackground(Color.BLACK);
 		this.displayLobby.setForeground(Color.WHITE);
@@ -171,8 +230,26 @@ public class Bombayah {
 		menuFrame.add(menu);
 		menuFrame.pack();
 		menuFrame.setVisible(true);
-		
-		
+		JButton about = new JButton("About");
+		about.setBounds(170,420,90,25);
+		menu.add(about);
+		about.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+
+				JFrame aboutFrame = new JFrame("About");
+				aboutFrame.setPreferredSize(new Dimension(200,250));
+				Container cc = aboutFrame.getContentPane();
+				cc.setLayout(new BorderLayout());
+				cc.setBackground(Color.PINK);
+
+				JLabel aboutText = new JLabel("<html>This is a CMSC 137 project.<br><br><p>Authors:</p><br>Batacan, Noah Ezekiel<br>Pagtananan, Tesa<br>Uriza, Ian Michael<br>Valencia, Yentl Marie</html>");
+
+				cc.add(aboutText);
+				aboutFrame.pack();
+				aboutFrame.setVisible(true);
+			}
+		});
+
 		find.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				playerAttr.add(0, uname.getText());

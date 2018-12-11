@@ -31,9 +31,15 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 	HashMap<String, Point> playerPos = new HashMap<String, Point>();
 	HashMap<Point, JLabel> boxMap = new HashMap<Point, JLabel>();
 	Container c;
+	int levelNumber = 1;
+	JLabel levelLabel;
+
+	JLabel name1 = new JLabel();
+	JLabel name2 = new JLabel();
+	JLabel name3 = new JLabel();
+	JLabel name4 = new JLabel();
 
 	
-
 	public GameBoard(String server,String name, Container c) throws Exception{
 		System.out.println("-----------------------"+name);
 		this.c = c;
@@ -47,6 +53,13 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		this.setLayout(null);
 		this.setPreferredSize(new Dimension(750, 550));
 		this.setBackground(Color.PINK);
+		String str = "LEVEL "+levelNumber;
+		levelLabel = new JLabel(str);
+		levelLabel.setFont(new Font("Arial", Font.PLAIN, 25));
+		levelLabel.setBounds(900, 100,200,50);
+		c.add(levelLabel,0);
+		
+
 
 		try {
 	        FileInputStream in = new FileInputStream("board"+level+".txt");
@@ -105,6 +118,29 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		this.setBounds(50,100,750,550);
 		background.setBounds(50, 100, 750, 550);
 
+		JLabel lisaLogo = new JLabel(new ImageIcon("img/lisa_logo.png"));
+		JLabel roseeLogo = new JLabel(new ImageIcon("img/rosee_logo.png"));
+		JLabel jisooLogo = new JLabel(new ImageIcon("img/jisoo_logo.png"));
+		JLabel jennieLogo = new JLabel(new ImageIcon("img/jennie_logo.png"));
+
+		jennieLogo.setBounds(650,10,50,50);
+		jisooLogo.setBounds(500,10,50,50);
+		roseeLogo.setBounds(350,10,50,50);
+		lisaLogo.setBounds(200,10,50,50);
+
+		c.add(lisaLogo);
+		c.add(roseeLogo);
+		c.add(jisooLogo);
+		c.add(jennieLogo);
+
+		name1.setBounds(650,70,50,20);
+		name2.setBounds(500,70,50,20);
+		name3.setBounds(350,70,50,20);
+		name4.setBounds(200,70,50,20);
+		c.add(name1);
+		c.add(name2);
+		c.add(name3);
+		c.add(name4);
 		this.addKeyListener(new KeyHandler());
 		this.addMouseListener(new MouseListener(){
 			public void mousePressed(MouseEvent me){
@@ -135,6 +171,8 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 	}
 
 	public void resetBoard(){
+		this.levelNumber+=1;
+		this.levelLabel.setText("LEVEL "+levelNumber);
 		this.removeAll();
 		this.revalidate();
 		this.repaint();
@@ -424,12 +462,16 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 							Point prev = new Point(x,y);
 							if(i == 0){
 								player.setIcon(new ImageIcon("img/lisa.png"));
+								name1.setText(pname);
 							}else if(i == 1){
 								player.setIcon(new ImageIcon("img/rosee.png"));
+								name2.setText(pname);
 							}else if(i == 2){
 								player.setIcon(new ImageIcon("img/jisoo.png"));
+								name3.setText(pname);
 							}else if(i == 3){
 								player.setIcon(new ImageIcon("img/jennie.png"));
+								name4.setText(pname);
 							}
 							playerPos.put(pname, new Point(x, y));
 							player.setBounds(yPos, xPos, DIMENSION, DIMENSION);
