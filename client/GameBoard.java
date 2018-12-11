@@ -27,42 +27,11 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 	ArrayList<Point> grassPlots = new ArrayList<Point>();
 	ArrayList<Point> prevPosition = new ArrayList<Point>();
 	HashMap<String, JLabel> playerList = new HashMap<String, JLabel>();
+	HashMap<String, Point> playerPos = new HashMap<String, Point>();
 	HashMap<Point, JLabel> boxMap = new HashMap<Point, JLabel>();
 	Container c;
 
-
-	public GameBoard(String server,String name, Container c) throws Exception{
-		System.out.println("-----------------------"+name);
-		this.c = c;
-		this.server=server;
-		this.name=name;
-
-		socket.setSoTimeout(100); //set some timeout for the socket
-
-		//GUI
-		this.setFocusable(true);
-		this.setLayout(null);
-		this.setPreferredSize(new Dimension(750, 550));
-		this.setBackground(Color.PINK);
-
-		//player icons
-
-		JLabel lisaLogo = new JLabel(new ImageIcon("img/lisa_logo.png"));
-		JLabel roseeLogo = new JLabel(new ImageIcon("img/rosee_logo.png"));
-		JLabel jisooLogo = new JLabel(new ImageIcon("img/jisoo_logo.png"));
-		JLabel jennieLogo = new JLabel(new ImageIcon("img/jennie_logo.png"));
-
-		jennieLogo.setBounds(650,10,50,50);
-		jisooLogo.setBounds(500,10,50,50);
-		roseeLogo.setBounds(350,10,50,50);
-		lisaLogo.setBounds(200,10,50,50);
-
-		c.add(lisaLogo);
-		c.add(roseeLogo);
-		c.add(jisooLogo);
-		c.add(jennieLogo);
-
-
+	public void initConfig(){
 		//set initial board config
 		try {
 	        FileInputStream in = new FileInputStream("board1.txt");
@@ -73,7 +42,6 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 	        while ((chr = in.read()) != -1) {
                 switch (chr) {
                     case 'w':
-                        // System.out.println((char)chr);
                         board[row][col] = (char)chr;
                         col++;
                         break;
@@ -117,15 +85,46 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 
 		
 
-		// player.setIcon(new ImageIcon("img/lisa.png"));
-		// player.setBounds(this.yPos, this.xPos, DIMENSION, DIMENSION);
-		// this.add(player);
+	}
 
+	public GameBoard(String server,String name, Container c) throws Exception{
+		System.out.println("-----------------------"+name);
+		this.c = c;
+		this.server=server;
+		this.name=name;
+
+		socket.setSoTimeout(100); //set some timeout for the socket
+
+		//GUI
+		this.setFocusable(true);
+		this.setLayout(null);
+		this.setPreferredSize(new Dimension(750, 550));
+		this.setBackground(Color.PINK);
+
+		this.initConfig();
+		
 		//background image
 		JLabel background = new JLabel(new ImageIcon("img/BACKGROUND.png"));
 		this.add(background);
 		this.setBounds(50,100,750,550);
 		background.setBounds(50, 100, 750, 550);
+
+
+		JLabel lisaLogo = new JLabel(new ImageIcon("img/lisa_logo.png"));
+		JLabel roseeLogo = new JLabel(new ImageIcon("img/rosee_logo.png"));
+		JLabel jisooLogo = new JLabel(new ImageIcon("img/jisoo_logo.png"));
+		JLabel jennieLogo = new JLabel(new ImageIcon("img/jennie_logo.png"));
+
+		jennieLogo.setBounds(650,10,50,50);
+		jisooLogo.setBounds(500,10,50,50);
+		roseeLogo.setBounds(350,10,50,50);
+		lisaLogo.setBounds(200,10,50,50);
+
+		c.add(lisaLogo);
+		c.add(roseeLogo);
+		c.add(jisooLogo);
+		c.add(jennieLogo);
+
 
 		this.addKeyListener(new KeyHandler());
 		this.addMouseListener(new MouseListener(){
@@ -157,12 +156,14 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 	}
 
 	public void boom(String pname, int x, int y){
+		hasBomb = false;
 		String name = new String(pname);
 		this.xBomb = new Integer(x);
 		this.yBomb = new Integer(y);
-		board[this.xBomb][this.yBomb] = 'B';
+		board[this.xBomb][this.yBomb] = 'V';
 		Bomb b = new Bomb(this.xBomb, this.yBomb);
 		this.add(b, 0);
+		System.out.println("sadadsa");
 
 		JLabel flameUp = new JLabel(new ImageIcon("img/flame_up.gif"));
 		JLabel flameDown = new JLabel(new ImageIcon("img/flame_down.gif"));
@@ -173,7 +174,7 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 			@Override
 	        public void actionPerformed(ActionEvent evt) {
 	    		remove(b);
-	    		board[xBomb][yBomb] = '-';
+	    		
 
 	            revalidate();
 	            repaint();
@@ -184,8 +185,8 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 				//FLAME UP
 		        if(board[xBomb-1][yBomb] == 'b'){ //if box
 		        	remove((JLabel)boxMap.get(new Point(xBomb-1, yBomb)));
-		        	board[xBomb-1][yBomb] = '-';
-		        }
+					board[xBomb-1][yBomb] = '-';
+				}
 		        if(board[xBomb-1][yBomb] == '-' || board[xBomb-1][yBomb] == 'X'){
 		            flameUp.setBounds(50+DIMENSION*yBomb, 100+DIMENSION*(xBomb-1), DIMENSION, DIMENSION);
 		            add(flameUp, 0);
@@ -194,7 +195,7 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		        //FLAME DOWN
 		        if(board[xBomb+1][yBomb] == 'b'){
 		        	remove((JLabel)boxMap.get(new Point(xBomb+1, yBomb)));
-		        	board[xBomb+1][yBomb] = '-';
+					board[xBomb+1][yBomb] = '-';
 		        }
 		        if(board[xBomb+1][yBomb] == '-' || board[xBomb+1][yBomb] == 'X'){
 		            flameDown.setBounds(50+DIMENSION*yBomb, 100+DIMENSION*(xBomb+1), DIMENSION, DIMENSION);
@@ -204,7 +205,7 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		        //FLAME RIGHT
 		        if(board[xBomb][yBomb+1] == 'b'){
 		        	remove((JLabel)boxMap.get(new Point(xBomb, yBomb+1)));
-		        	board[xBomb][yBomb+1] = '-';
+					board[xBomb][yBomb+1] = '-';
 		        }
 		        
 		        if(board[xBomb][yBomb+1] == '-' || board[xBomb][yBomb+1] == 'X'){
@@ -215,18 +216,55 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		        //FLAME LEFT
 		        if(board[xBomb][yBomb-1] == 'b'){
 		        	remove((JLabel)boxMap.get(new Point(xBomb, yBomb-1)));
-		        	board[xBomb][yBomb-1] = '-';
+					board[xBomb][yBomb-1] = '-';
 		        }
 		        
 		        if(board[xBomb][yBomb-1] == '-' || board[xBomb][yBomb-1] == 'X'){
 		            flameLeft.setBounds(50+DIMENSION*(yBomb-1), 100+DIMENSION*xBomb, DIMENSION, DIMENSION);
 		            add(flameLeft, 0);
-		        }
-
-
-		        flameCenter.setBounds(50+DIMENSION*yBomb, 100+DIMENSION*xBomb, DIMENSION, DIMENSION);
+				}
+				
+				flameCenter.setBounds(50+DIMENSION*yBomb, 100+DIMENSION*xBomb, DIMENSION, DIMENSION);
 		        add(flameCenter, 0);
 
+				Iterator iter = playerPos.keySet().iterator();
+				while(iter.hasNext()){
+					String key = (String)iter.next();
+					if(playerPos.get(key).getX() == xBomb && playerPos.get(key).getY() == yBomb){
+						send("DEAD "+key);
+						board[xBomb][yBomb] = '-';
+						remove(playerList.get(key));
+						playerList.remove(key);
+					}else if(playerPos.get(key).getX() == xBomb-1 && playerPos.get(key).getY() == yBomb){
+						send("DEAD "+key);
+						board[xBomb-1][yBomb] = '-';
+						remove(playerList.get(key));
+						playerList.remove(key);
+					}else if(playerPos.get(key).getX() == xBomb+1 && playerPos.get(key).getY() == yBomb){
+						send("DEAD "+key);
+						board[xBomb+1][yBomb] = '-';
+						remove(playerList.get(key));
+						playerList.remove(key);
+					}else if(playerPos.get(key).getX() == xBomb && playerPos.get(key).getY() == yBomb-1){
+						send("DEAD "+key);
+						board[xBomb][yBomb-1] = '-';
+						remove(playerList.get(key));
+						playerList.remove(key);
+					}else if(playerPos.get(key).getX() == xBomb && playerPos.get(key).getY() == yBomb+1){
+						send("DEAD "+key);
+						board[xBomb][yBomb+1] = '-';
+						remove(playerList.get(key));
+						playerList.remove(key);
+					}
+					
+				}
+				System.out.println(playerList.size());
+				if(playerList.size() == 1){
+					iter = playerPos.keySet().iterator();
+					send("WINNER "+(String)iter.next());
+				}
+
+		        board[xBomb][yBomb] = '-';
 		        revalidate();
 		        repaint();
 		        c.revalidate();
@@ -245,8 +283,8 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 	    		remove(flameRight);
 	    		remove(flameLeft);
 	    		remove(flameCenter);
-
-
+				hasBomb = false;
+				send("BOMB "+name+" "+hasBomb);
 	            revalidate();
 	            repaint();
 	            c.revalidate();
@@ -312,13 +350,14 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 							}else if(i == 3){
 								player.setIcon(new ImageIcon("img/jennie.png"));
 							}
+							playerPos.put(pname, new Point(x, y));
 							player.setBounds(yPos, xPos, DIMENSION, DIMENSION);
 							playerList.put(pname, player);
 							prevPosition.add(prev);
 							this.add(player,0);
 						}else{
 							if(hasBomb){
-								// boom(pname, x, y);
+								boom(pname, x, y);
 							}else{
 								//update the player UI position
 								playerList.get(pname).setBounds(yPos, xPos, DIMENSION, DIMENSION);
@@ -326,16 +365,26 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 								//update the configuration: change the previous position
 								int prevX = (int)prevPosition.get(i).getX();
 								int prevY = (int)prevPosition.get(i).getY();
-								if(board[prevX][prevY] == 'B'){
-									board[prevX][prevY] = 'B';
-								}else{
-									board[prevX][prevY] = '-';
+								if(prevX != x || prevY != y){
+									if(board[prevX][prevY] == 'V'){
+										board[prevX][prevY] = 'B';
+									}else{
+										board[prevX][prevY] = '-';
+									}
+									board[x][y] = 'X';
 								}
 							}
 							prevPosition.set(i, new Point(x, y));
 							
 						}
 
+						
+						// for(int k=0;k<11;k++){
+						// 	for(int j=0; j<15; j++){
+						// 		System.out.print(board[k][j]+" ");
+						// 	}
+						// 	System.out.println();
+						// }
 
 						this.revalidate();
 						this.repaint();
@@ -393,10 +442,11 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 					}
 				}
 			}
-			if(ke.getKeyCode()==KeyEvent.VK_ENTER){
+			if(ke.getKeyCode()==KeyEvent.VK_SPACE){
 				if(!hasBomb){
 					hasBomb = true;
 				}
+				// send("BOMB "+name+" "+x+" "+y);
 			}
 
 			send("PLAYER "+name

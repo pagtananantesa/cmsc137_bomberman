@@ -17,7 +17,6 @@ public class Bombayah {
 	}
 	private void sendCreateLobby(String uname){
 		String key = this.client.createLobby();
-		System.out.println("LOBBY CREATED");
 		this.client.joinLobby(key,uname);
 		this.displayLobby.setText(key);
 	}
@@ -47,7 +46,6 @@ public class Bombayah {
 		c.setBackground(Color.PINK);
 
 		GameBoard gamePanel = new GameBoard(address, name, c);
-
 
 //UI update starts here
 
@@ -90,8 +88,7 @@ public class Bombayah {
 		levelLabel.setBounds(900, 100,200,50);
 		c.add(levelLabel,0);
 		
-
-
+		
 
 		controls.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
@@ -131,7 +128,8 @@ public class Bombayah {
 			}
 		});
 
-//ui update ends here
+//ui update ends here		
+
 		
 		//CHAT BOX GUI---------------------------------------------------
 		this.displayLobby.setBackground(Color.BLACK);
@@ -196,7 +194,7 @@ public class Bombayah {
 		frame.setVisible(true);
 	}
 
-	private void startGame() throws Exception{
+	private Bombayah(String address) throws Exception{
 		this.client = new Client(this);
 		this.client.start();
 
@@ -243,18 +241,15 @@ public class Bombayah {
 		logo.setBounds(135,50,190,170);
 		menu.add(logo);
 
-//update
-
 		JButton about = new JButton("About");
 		about.setBounds(170,420,90,25);
 		menu.add(about);
-
 		
 		menuFrame.add(menu);
 		menuFrame.pack();
 		menuFrame.setVisible(true);
 		
-//til here		
+		
 		find.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				playerAttr.add(0, uname.getText());
@@ -263,7 +258,7 @@ public class Bombayah {
 				if(isConnected()){
 					try{
 						menuFrame.setVisible(false);
-						gameInit("10.11.184.112", uname.getText());	
+						gameInit(address, uname.getText());	
 						
 					}catch(Exception err){
 						System.out.println(err.getMessage()); 
@@ -295,6 +290,7 @@ public class Bombayah {
 		});
 
 //til here
+
 		createLobby.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				playerAttr.add(0, uname.getText());
@@ -302,7 +298,7 @@ public class Bombayah {
 				if(isConnected()){
 					try{
 						menuFrame.setVisible(false);
-						gameInit("10.11.184.112", uname.getText());	
+						gameInit(address, uname.getText());	
 						
 					}catch(Exception err){
 						System.out.println(err.getMessage()); 
@@ -314,7 +310,6 @@ public class Bombayah {
 	}
 
 	public static void main(String args[]) throws Exception{
-		Bombayah game = new Bombayah();
-		game.startGame();
+		Bombayah game = new Bombayah(args[0]);
 	}
 }

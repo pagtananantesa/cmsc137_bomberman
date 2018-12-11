@@ -37,7 +37,7 @@ public class Client implements Runnable{
     private void buildPlayer(String uname){
         String username;
         this.player = null;
-        System.out.print("Enter Player Name: ");
+        System.out.println("NAME: "+uname);
         this.player = PlayerProtos.Player.newBuilder()
                                     .setName(uname)
                                     .setId("-1")

@@ -41,7 +41,10 @@ public class GameState{
 		for(Iterator ite=players.keySet().iterator();ite.hasNext();){
 			String name=(String)ite.next();
 			NetPlayer player=(NetPlayer)players.get(name);
-			retval+=player.toString()+":";
+			if(player.getStatus()){
+				retval+=player.toString()+":";
+			}
+			
 		}
 		return retval;
 	}
