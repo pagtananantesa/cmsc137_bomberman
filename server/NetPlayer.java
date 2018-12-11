@@ -15,6 +15,7 @@ public class NetPlayer implements Constants{
 	private int xPos, yPos; //UI position
 	private boolean isAlive;
 	private boolean hasBomb;
+	private int wins;
 
 	public NetPlayer(String name,InetAddress address, int port, int x, int y){
 		this.address = address;
@@ -25,6 +26,8 @@ public class NetPlayer implements Constants{
 		this.y = y;
 		this.xPos = 100+DIMENSION*x;
 		this.yPos = 50+DIMENSION*y;
+		this.wins = 0;
+
 	}
 
 	public InetAddress getAddress(){
@@ -86,6 +89,13 @@ public class NetPlayer implements Constants{
 		this.hasBomb = hasBomb;
 	}
 
+	public void addWins(){
+		this.wins+=1;
+	}
+
+	public int getWins(){
+		return this.wins;
+	}
 	/**
 	 * String representation. used for transfer over the network
 	 */

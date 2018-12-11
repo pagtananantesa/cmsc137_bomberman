@@ -82,7 +82,7 @@ public class GameServer implements Runnable, Constants{
 						game.update(tokens[1].trim(),player);
 						broadcast("CONNECTED "+tokens[1]+" "+playerCount);
 						playerCount+=1;
-						if (playerCount>=3){
+						if (playerCount>=2){
 							gameStage=GAME_START;
 						}
 					}
@@ -122,6 +122,27 @@ public class GameServer implements Runnable, Constants{
 						game.update(pname, player);
 						//Send to all the updated game state
 						broadcast(game.toString());
+						player.setBomb(false);
+						game.update(pname, player);
+						broadcast(game.toString());
+
+					}else if(playerData.startsWith("BOMB")){
+						String[] playerInfo = playerData.split(" ");					  
+						String pname =playerInfo[1];
+						System.out.println("Recieved BOMB");
+						NetPlayer player=(NetPlayer)game.getPlayers().get(pname);
+						player.setBomb(false);
+						
+						//Update the game state
+						game.update(pname, player);
+						//Send to all the updated game state
+						broadcast(game.toString());
+					}else if(playerData.startsWith("DEAD")){
+						System.out.println(playerData);
+						String[] playerInfo = playerData.split(" ");					  
+						String pname =playerInfo[1];
+						NetPlayer player=(NetPlayer)game.getPlayers().get(pname);
+						player.setStatus(false);
 					}
 					break;
 			}				  
