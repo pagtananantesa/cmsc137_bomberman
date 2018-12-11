@@ -117,7 +117,7 @@ public class GameServer implements Runnable, Constants{
 						player.setXPos(xPos);
 						player.setYPos(yPos);
 						player.setBomb(hasBomb);
-
+						player.setStatus(true);
 						//Update the game state
 						game.update(pname, player);
 						//Send to all the updated game state
@@ -143,6 +143,14 @@ public class GameServer implements Runnable, Constants{
 						String pname =playerInfo[1];
 						NetPlayer player=(NetPlayer)game.getPlayers().get(pname);
 						player.setStatus(false);
+						game.update(pname, player);
+						broadcast(game.toString());
+					}else if(playerData.startsWith("WINNER")){
+						String[] playerInfo = playerData.split(" ");					  
+						String pname =playerInfo[1];
+						NetPlayer player=(NetPlayer)game.getPlayers().get(pname);
+						player.addWins();
+						System.out.println(pname+" wins");
 					}
 					break;
 			}				  

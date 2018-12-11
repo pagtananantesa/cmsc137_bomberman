@@ -21,7 +21,7 @@ public class NetPlayer implements Constants{
 		this.address = address;
 		this.port = port;
 		this.name = name;
-		this.isAlive = false;
+		this.isAlive = true;
 		this.x = x;
 		this.y = y;
 		this.xPos = 100+DIMENSION*x;
