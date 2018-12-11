@@ -121,7 +121,7 @@ public class Bombayah {
 		frame.setVisible(true);
 	}
 
-	private void startGame() throws Exception{
+	private Bombayah(String address) throws Exception{
 		this.client = new Client(this);
 		this.client.start();
 
@@ -181,7 +181,7 @@ public class Bombayah {
 				if(isConnected()){
 					try{
 						menuFrame.setVisible(false);
-						gameInit("10.11.184.112", uname.getText());	
+						gameInit(address, uname.getText());	
 						
 					}catch(Exception err){
 						System.out.println(err.getMessage()); 
@@ -201,7 +201,7 @@ public class Bombayah {
 				if(isConnected()){
 					try{
 						menuFrame.setVisible(false);
-						gameInit("10.11.184.112", uname.getText());	
+						gameInit(address, uname.getText());	
 						
 					}catch(Exception err){
 						System.out.println(err.getMessage()); 
@@ -213,7 +213,6 @@ public class Bombayah {
 	}
 
 	public static void main(String args[]) throws Exception{
-		Bombayah game = new Bombayah();
-		game.startGame();
+		Bombayah game = new Bombayah(args[0]);
 	}
 }
