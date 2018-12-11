@@ -7,8 +7,8 @@ import java.util.*;
 public class Bombayah {
 	Client client;
 	JTextArea textfield;
-	JLabel displayLobby;
-	JTextArea chatDisplay;
+	JLabel displayLobby = new JLabel();
+	JTextArea chatDisplay = new JTextArea();
 	boolean isconnected;
 
 	private void sendMessage(){
@@ -17,6 +17,7 @@ public class Bombayah {
 	}
 	private void sendCreateLobby(String uname){
 		String key = this.client.createLobby();
+		System.out.println("LOBBY CREATED");
 		this.client.joinLobby(key,uname);
 		this.displayLobby.setText(key);
 	}
@@ -26,6 +27,7 @@ public class Bombayah {
 	}
 	public void recieveChat(String message){
 		this.chatDisplay.append(message);
+		System.out.println("MSG: "+message);
 		this.chatDisplay.append("\n");
 	}
 	public void setConnected(){
@@ -35,59 +37,7 @@ public class Bombayah {
 		return this.isconnected;
 	}
 
-							
-	private void startGame() throws Exception{
-		this.client = new Client(this);
-		this.client.start();
-
-		ArrayList<String> playerAttr = new ArrayList<String>();
-		playerAttr.add(0,""); //name
-
-
-		//MAIN MENU GUI-------------------------------------------
-		JFrame menuFrame = new JFrame("Welcome");
-		menuFrame.setPreferredSize(new Dimension(450,500));
-		menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		Container menuContain = menuFrame.getContentPane();
-		menuContain.setLayout(new BorderLayout());
-
-		JPanel menu = new JPanel();
-		menu.setPreferredSize(new Dimension(450,500));
-		menu.setOpaque(true);
-		menu.setBackground(Color.BLACK);
-		menu.setLayout(null);
-
-		JTextField uname = new JTextField("Player");
-		uname.setBackground(Color.WHITE);
-		uname.setBounds(145,250,170,40);
-		menu.add(uname);
-
-		JTextField lobbyName = new JTextField("Join Lobby");
-		lobbyName.setBackground(Color.WHITE);
-		lobbyName.setBounds(230,350,100,40);
-		menu.add(lobbyName);
-
-		JButton find = new JButton("Go");
-		find.setBackground(Color.GREEN);
-		find.setBounds(330,350,40,40);
-		menu.add(find);
-
-
-		JButton createLobby = new JButton("Create Lobby");
-		createLobby.setBackground(Color.PINK);
-		createLobby.setBounds(50,350,140,40);
-		menu.add(createLobby);
-
-
-		JLabel logo = new JLabel(new ImageIcon("img/logo.gif"));
-		logo.setBounds(135,50,190,170);
-		menu.add(logo);
-		
-		menuFrame.add(menu);
-		menuFrame.pack();
-		menuFrame.setVisible(true);
-
-
+	private void gameInit(String address, String name) throws Exception{
 		//GAME GUI-----------------------------------------------------
 		JFrame frame = new JFrame("Bombayah");
 		frame.setPreferredSize(new Dimension(1200, 700));
@@ -96,12 +46,89 @@ public class Bombayah {
 		c.setLayout(new BorderLayout());
 		c.setBackground(Color.PINK);
 
-		GameBoard gamePanel = new GameBoard("10.11.184.112", playerAttr.get(0), c);
+		GameBoard gamePanel = new GameBoard(address, name, c);
+
+		JLabel miniLogo = new JLabel(new ImageIcon("img/miniLogo.gif"));
+		miniLogo.setBounds(5,5,90,90);
+		c.add(miniLogo,0);
+	
+	/*
+		JButton quitpic = new JButton();
+		quitpic.setIcon(new ImageIcon("img/quit.png"));
+		quitpic.setBounds(10,10,96,27);
+		c.add(quitpic,0);
+	*/
+
+		JButton controls = new JButton("Controls?");
+		controls.setBackground(Color.RED);
+		controls.setBounds(910,20,110,25);
+		c.add(controls);
+
+		JButton poweroff = new JButton();
+		poweroff.setIcon(new ImageIcon("img/poweroff.png"));
+		poweroff.setBounds(1130,10,50,50);
+		poweroff.setOpaque(false);
+		poweroff.setContentAreaFilled(false);
+		poweroff.setBorderPainted(false);
+		c.add(poweroff);
+
+		JButton info = new JButton();
+		info.setIcon(new ImageIcon("img/instruction.png"));
+		info.setBounds(1050,10,50,50);
+		info.setOpaque(false);
+		info.setContentAreaFilled(false);
+		info.setBorderPainted(false);
+		c.add(info);
+
+		int levelNumber = 1;
+		String str = "LEVEL "+levelNumber;
+		JLabel levelLabel = new JLabel(str);
+		levelLabel.setFont(new Font("Arial", Font.PLAIN, 25));
+		levelLabel.setBounds(900, 100,200,50);
+		c.add(levelLabel,0);
+		
 
 
+
+		controls.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+
+				JFrame control = new JFrame("Controls");
+				control.setPreferredSize(new Dimension(160,170));
+				Container ccc = control.getContentPane();
+				ccc.setLayout(new GridLayout());
+				
+				JLabel controls = new JLabel(new ImageIcon("img/controls.png"));
+				controls.setBounds(0,0,150,150);
+				ccc.add(controls);
+				control.pack();
+				control.setVisible(true);
+			}
+
+		});
+
+		info.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+
+				JFrame instruction = new JFrame("Mechanics & Instructions");
+				instruction.setPreferredSize(new Dimension(267,356));
+				Container contain = instruction.getContentPane();
+				contain.setLayout(new GridLayout());
+				contain.setBackground(Color.PINK);
+
+				JLabel mechanics = new JLabel(new ImageIcon("img/mech.png"));
+				JLabel controls = new JLabel();
+				mechanics.setBounds(0,0,267,356);
+				contain.add(mechanics);
+//				contain.add(controls);
+				instruction.pack();
+				instruction.setVisible(true);
+
+
+			}
+		});
 		
 		//CHAT BOX GUI---------------------------------------------------
-		this.displayLobby = new JLabel("lobby_ID");
 		this.displayLobby.setBackground(Color.BLACK);
 		this.displayLobby.setForeground(Color.WHITE);
 		this.displayLobby.setBounds(900,200,250,50);
@@ -109,12 +136,8 @@ public class Bombayah {
 		c.add(this.displayLobby);
 
 
-		this.chatDisplay = new JTextArea();
-		// messages.setBounds(30,30,30,80);
 		chatDisplay.setBorder(BorderFactory.createLineBorder(Color.gray));
 		chatDisplay.setBackground(Color.WHITE);
-		//messages.setLineWrap(true);
-		//messages.setWrapStyleWord(true);
 		chatDisplay.setOpaque(true);
 		chatDisplay.setFocusable(false);
 
@@ -125,7 +148,6 @@ public class Bombayah {
 		chatbox.setBackground(Color.WHITE);
 		chatbox.setBorder(BorderFactory.createLineBorder(Color.gray));
 		chatbox.setOpaque(true);
-		chatbox.setFocusable(false);
 		c.add(chatbox);
 
 		
@@ -166,6 +188,65 @@ public class Bombayah {
 		c.add(gamePanel, BorderLayout.CENTER);
 
 		frame.pack();
+		frame.setVisible(true);
+	}
+
+	private void startGame() throws Exception{
+		this.client = new Client(this);
+		this.client.start();
+
+		ArrayList<String> playerAttr = new ArrayList<String>();
+		playerAttr.add(0,""); //name
+
+
+		//MAIN MENU GUI-------------------------------------------
+		JFrame menuFrame = new JFrame("Welcome");
+		menuFrame.setPreferredSize(new Dimension(450,500));
+		menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Container menuContain = menuFrame.getContentPane();
+		menuContain.setLayout(new BorderLayout());
+
+		JPanel menu = new JPanel();
+		menu.setPreferredSize(new Dimension(450,500));
+		menu.setOpaque(true);
+		menu.setBackground(Color.BLACK);
+		menu.setLayout(null);
+
+		JTextField uname = new JTextField("Player");
+		uname.setBackground(Color.WHITE);
+		uname.setBounds(145,250,170,40);
+		menu.add(uname);
+
+		JTextField lobbyName = new JTextField("Join Lobby");
+		lobbyName.setBackground(Color.WHITE);
+		lobbyName.setBounds(250,350,100,40);
+		menu.add(lobbyName);
+
+		JButton find = new JButton("Go");
+		find.setBackground(Color.GREEN);
+		find.setBounds(350,350,50,40);
+		menu.add(find);
+
+
+		JButton createLobby = new JButton("Create Lobby");
+		createLobby.setBackground(Color.PINK);
+		createLobby.setBounds(50,350,140,40);
+		menu.add(createLobby);
+
+
+		JLabel logo = new JLabel(new ImageIcon("img/logo.gif"));
+		logo.setBounds(135,50,190,170);
+		menu.add(logo);
+
+		JButton about = new JButton("About");
+		about.setBounds(170,420,90,25);
+		menu.add(about);
+
+		
+		menuFrame.add(menu);
+		menuFrame.pack();
+		menuFrame.setVisible(true);
+		
 		
 		find.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
@@ -173,8 +254,13 @@ public class Bombayah {
 				playerAttr.add(1, lobbyName.getText());
 				sendJoinLobby(lobbyName.getText(),uname.getText());
 				if(isConnected()){
-					menuFrame.setVisible(false);
-					frame.setVisible(true);	
+					try{
+						menuFrame.setVisible(false);
+						gameInit("10.11.184.112", uname.getText());	
+						
+					}catch(Exception err){
+						System.out.println(err.getMessage()); 
+					}
 				}else{
 					System.out.println("NOT CONNECTED");						//Replace with popup and display error
 				}
@@ -183,13 +269,35 @@ public class Bombayah {
 
 		});
 
+		about.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+
+				JFrame aboutFrame = new JFrame("About");
+				aboutFrame.setPreferredSize(new Dimension(200,250));
+				Container cc = aboutFrame.getContentPane();
+				cc.setLayout(new BorderLayout());
+				cc.setBackground(Color.PINK);
+
+				JLabel aboutText = new JLabel("<html>This is a CMSC 137 project.<br><br><p>Authors:</p><br>Batacan, Noah Ezekiel<br>Pagtananan, Tesa<br>Uriza, Ian Michael<br>Valencia, Yentl Marie</html>");
+
+				cc.add(aboutText);
+				aboutFrame.pack();
+				aboutFrame.setVisible(true);
+			}
+		});
+
 		createLobby.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				playerAttr.add(0, uname.getText());
 				sendCreateLobby(uname.getText());
 				if(isConnected()){
-					menuFrame.setVisible(false);
-					frame.setVisible(true);	
+					try{
+						menuFrame.setVisible(false);
+						gameInit("10.11.184.112", uname.getText());	
+						
+					}catch(Exception err){
+						System.out.println(err.getMessage()); 
+					}
 				}
 			}
 
