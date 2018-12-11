@@ -48,6 +48,9 @@ public class Bombayah {
 
 		GameBoard gamePanel = new GameBoard(address, name, c);
 
+
+//UI update starts here
+
 		JLabel miniLogo = new JLabel(new ImageIcon("img/miniLogo.gif"));
 		miniLogo.setBounds(5,5,90,90);
 		c.add(miniLogo,0);
@@ -127,6 +130,8 @@ public class Bombayah {
 
 			}
 		});
+
+//ui update ends here
 		
 		//CHAT BOX GUI---------------------------------------------------
 		this.displayLobby.setBackground(Color.BLACK);
