@@ -1,5 +1,3 @@
-//package ph.edu.uplb.ics.cmsc137;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
@@ -21,6 +19,9 @@ public class GameServer implements Runnable, Constants{
 
 
 	
+	/**
+	 * Simple constructor
+	 */
 	public GameServer(int numPlayers){
 		this.numPlayers = numPlayers;
 		try {
@@ -38,6 +39,10 @@ public class GameServer implements Runnable, Constants{
 		t.start(); //start the game thread
 	}
 	
+	/**
+	 * Helper method for broadcasting data to all players
+	 * @param msg
+	 */
 	public void broadcast(String msg){
 		Iterator ite = game.getPlayers().keySet().iterator();
     	while (ite.hasNext()){
@@ -47,6 +52,12 @@ public class GameServer implements Runnable, Constants{
     	}
 	}
 
+
+	/**
+	 * Send a message to a player
+	 * @param player
+	 * @param msg
+	 */
 	public void send(NetPlayer player, String msg){
 		byte[] arrayOfByte = msg.getBytes();
     	DatagramPacket packet = new DatagramPacket(arrayOfByte, arrayOfByte.length, player.getAddress(), player.getPort());
@@ -72,52 +83,57 @@ public class GameServer implements Runnable, Constants{
 			playerData = playerData.trim(); //remove excess bytes
 
 		
+		
 			switch(gameStage){ // process
-				case WAITING_FOR_PLAYERS:
-					if (playerData.startsWith("CONNECT")){
-						String tokens[] = playerData.split(" ");
-						NetPlayer player=new NetPlayer(tokens[1],packet.getAddress(),packet.getPort());
-						System.out.println("Player connected: "+tokens[1]);
-						game.update(tokens[1].trim(),player);
-						broadcast("CONNECTED "+tokens[1]);
-						playerCount+=1;
-						if (playerCount==numPlayers){
-							gameStage=GAME_START;
+				  case WAITING_FOR_PLAYERS:
+					//System.out.println("Game State: Waiting for players...");
+				  	//while(playerCount<=numPlayers){
+						if (playerData.startsWith("CONNECT")){
+							String tokens[] = playerData.split(" ");
+							NetPlayer player=new NetPlayer(tokens[1],packet.getAddress(),packet.getPort());
+							System.out.println("Player connected: "+tokens[1]);
+							game.update(tokens[1].trim(),player);
+							broadcast("CONNECTED "+tokens[1]);
+							playerCount+=1;
+							if (playerCount==numPlayers){
+								gameStage=GAME_START;
+							}
 						}
-					}
-					//System.out.println("Player count: "+playerCount);
-					break;	
-				case GAME_START:
-					System.out.println("Game State: START");
-					broadcast("START");
-					gameStage=IN_PROGRESS;
-					break;
-				case IN_PROGRESS:
-					//System.out.println("Game State: IN_PROGRESS");
-					System.out.println("Player data: "+ playerData);
-					//Player data was received!
-					if (playerData.startsWith("PLAYER")){
-						String[] playerInfo = playerData.split(" ");					  
-						String pname =playerInfo[1];
-						int x = Integer.parseInt(playerInfo[2].trim());
-						int y = Integer.parseInt(playerInfo[3].trim());
-						//Get the player from the game state
-						NetPlayer player=(NetPlayer)game.getPlayers().get(pname);					  
-						player.setX(x);
-						player.setY(y);
-						//Update the game state
-						game.update(pname, player);
-						//Send to all the updated game state
-						broadcast(game.toString());
-					}
-					break;
+						//System.out.println("Player count: "+playerCount);
+						
+					  break;	
+				  case GAME_START:
+					  System.out.println("Game State: START");
+					  broadcast("START");
+					  gameStage=IN_PROGRESS;
+					  break;
+				  case IN_PROGRESS:
+					  //System.out.println("Game State: IN_PROGRESS");
+					  System.out.println("Player data: "+ playerData);
+					  //Player data was received!
+					  if (playerData.startsWith("PLAYER")){
+						  String[] playerInfo = playerData.split(" ");					  
+						  String pname =playerInfo[1];
+						  int x = Integer.parseInt(playerInfo[2].trim());
+						  int y = Integer.parseInt(playerInfo[3].trim());
+						  //Get the player from the game state
+						  NetPlayer player=(NetPlayer)game.getPlayers().get(pname);					  
+						  player.setX(x);
+						  player.setY(y);
+						  //Update the game state
+						  game.update(pname, player);
+						  //Send to all the updated game state
+						  broadcast(game.toString());
+					  }
+					  break;
 			}				  
 		}
 	}
 
 
+
 	public static void main(String args[]){
-		new GameServer(2);
+		new GameServer(Integer.parseInt(args[0]));
 		
 	}
 }
