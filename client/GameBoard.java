@@ -23,6 +23,7 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 	int xPos, yPos; //for player movement UI
 	boolean hasBomb;
 	int xBomb, yBomb; //bomb position
+	int level = 1;
 	char[][] board = new char[11][15];
 	ArrayList<Point> grassPlots = new ArrayList<Point>();
 	ArrayList<Point> prevPosition = new ArrayList<Point>();
@@ -31,10 +32,24 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 	HashMap<Point, JLabel> boxMap = new HashMap<Point, JLabel>();
 	Container c;
 
-	public void initConfig(){
-		//set initial board config
+	
+
+	public GameBoard(String server,String name, Container c) throws Exception{
+		System.out.println("-----------------------"+name);
+		this.c = c;
+		this.server=server;
+		this.name=name;
+
+		socket.setSoTimeout(100); //set some timeout for the socket
+
+		//GUI
+		this.setFocusable(true);
+		this.setLayout(null);
+		this.setPreferredSize(new Dimension(750, 550));
+		this.setBackground(Color.PINK);
+
 		try {
-	        FileInputStream in = new FileInputStream("board1.txt");
+	        FileInputStream in = new FileInputStream("board"+level+".txt");
 	         
 	        int chr;
 	        int row = 0;
@@ -84,25 +99,6 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		this.xPos = 100+DIMENSION*x;
 
 		
-
-	}
-
-	public GameBoard(String server,String name, Container c) throws Exception{
-		System.out.println("-----------------------"+name);
-		this.c = c;
-		this.server=server;
-		this.name=name;
-
-		socket.setSoTimeout(100); //set some timeout for the socket
-
-		//GUI
-		this.setFocusable(true);
-		this.setLayout(null);
-		this.setPreferredSize(new Dimension(750, 550));
-		this.setBackground(Color.PINK);
-
-		this.initConfig();
-		
 		//background image
 		JLabel background = new JLabel(new ImageIcon("img/BACKGROUND.png"));
 		this.add(background);
@@ -136,6 +132,81 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 		    socket.send(localDatagramPacket);
         }catch (Exception localException) {}
 		
+	}
+
+	public void resetBoard(){
+		this.removeAll();
+		this.revalidate();
+		this.repaint();
+
+		this.playerList.clear();
+		this.playerPos.clear();
+		this.grassPlots.clear();
+		this.boxMap.clear();
+		this.prevPosition.clear();
+
+		try {
+	        FileInputStream in = new FileInputStream("board"+level+".txt");
+	         
+	        int chr;
+	        int row = 0;
+	        int col = 0;
+	        while ((chr = in.read()) != -1) {
+                switch (chr) {
+                    case 'w':
+                        board[row][col] = (char)chr;
+                        col++;
+                        break;
+                    case 'b':
+                        board[row][col] = (char)chr;
+                        JLabel box = new JLabel();
+                        box.setIcon(new ImageIcon("img/box.png"));
+                        box.setBounds(col*50+50, row*50+100, 50, 50);
+                        this.add(box);
+
+                        boxMap.put(new Point(row,col), box);
+                        col++;
+                        break;
+                    case '-':
+                        board[row][col] = (char)chr;
+                        Point p = new Point(row, col);
+                        grassPlots.add(p);
+                        col++;
+                        break;
+                    case '\n':
+                    	col = 0;
+                    	row++;
+                    default:
+                        break;
+                }
+            }
+	        in.close();
+
+
+	    }catch(Exception e) { 
+			System.out.println(e.getMessage()); 
+		}
+        //choose player position
+        Random rand = new Random();
+		Point position = grassPlots.get(rand.nextInt((int)grassPlots.size()));
+		this.x = (int)position.getX();
+		this.y = (int)position.getY();
+		this.yPos = 50+DIMENSION*y;
+		this.xPos = 100+DIMENSION*x;
+
+		//background image
+		JLabel background = new JLabel(new ImageIcon("img/BACKGROUND.png"));
+		this.add(background);
+		this.setBounds(50,100,750,550);
+		background.setBounds(50, 100, 750, 550);
+
+		send("PLAYER "+name
+			+" "+x
+			+" "+y
+			+" "+xPos
+			+" "+yPos
+			+" "+hasBomb
+			);
 	}
 
 	public void boom(String pname, int x, int y){
@@ -210,7 +281,16 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 				flameCenter.setBounds(50+DIMENSION*yBomb, 100+DIMENSION*xBomb, DIMENSION, DIMENSION);
 		        add(flameCenter, 0);
 
+				
+				for(int k=0;k<11;k++){
+					for(int j=0; j<15; j++){
+						System.out.print(board[k][j]+" ");
+					}
+					System.out.println();
+				}
+
 				Iterator iter = playerPos.keySet().iterator();
+				System.out.println("BOMB x:"+xBomb+" y: "+yBomb);
 				while(iter.hasNext()){
 					String key = (String)iter.next();
 					if(playerPos.get(key).getX() == xBomb && playerPos.get(key).getY() == yBomb){
@@ -240,6 +320,13 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 						playerList.remove(key);
 					}
 					
+				}
+				
+				for(int k=0;k<11;k++){
+					for(int j=0; j<15; j++){
+						System.out.print(board[k][j]+" ");
+					}
+					System.out.println();
 				}
 				System.out.println(playerList.size());
 				if(playerList.size() == 1){
@@ -307,7 +394,18 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 				send("CONNECT "+name+" "+x+" "+y);
 			}else if (connected){
 				// System.out.println("serverdata: "+serverData);
-				if (serverData.startsWith("PLAYER")){
+				if(serverData.startsWith("RESET")){
+					System.out.println("LEVEL "+level);
+					if(level > 3){
+						//end game
+						System.out.println("END GAME");
+					}else{
+						//reset game
+						level+=1;
+						resetBoard();
+					}
+					
+				}else if (serverData.startsWith("PLAYER")){
 					String[] playersInfo = serverData.split(":");
 					for (int i=0;i<playersInfo.length;i++){
 						String[] playerInfo = playersInfo[i].split(" ");
@@ -362,12 +460,6 @@ public class GameBoard extends JPanel implements Runnable, Constants{
 						}
 
 						
-						// for(int k=0;k<11;k++){
-						// 	for(int j=0; j<15; j++){
-						// 		System.out.print(board[k][j]+" ");
-						// 	}
-						// 	System.out.println();
-						// }
 
 						this.revalidate();
 						this.repaint();

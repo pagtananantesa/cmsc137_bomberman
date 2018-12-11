@@ -36,6 +36,14 @@ public class GameState{
 	 * String representation of this object. Used for data transfer
 	 * over the network
 	 */
+	public void resetLife(){
+		for(Iterator ite=players.keySet().iterator();ite.hasNext();){
+			String name=(String)ite.next();
+			NetPlayer player=(NetPlayer)players.get(name);
+			player.setStatus(true);
+			
+		}	
+	}
 	public String toString(){
 		String retval="";
 		for(Iterator ite=players.keySet().iterator();ite.hasNext();){

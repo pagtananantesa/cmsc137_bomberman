@@ -121,10 +121,11 @@ public class GameServer implements Runnable, Constants{
 						//Update the game state
 						game.update(pname, player);
 						//Send to all the updated game state
+						System.out.println(game.toString());
 						broadcast(game.toString());
-						player.setBomb(false);
-						game.update(pname, player);
-						broadcast(game.toString());
+						// player.setBomb(false);
+						// game.update(pname, player);
+						// broadcast(game.toString());
 
 					}else if(playerData.startsWith("BOMB")){
 						String[] playerInfo = playerData.split(" ");					  
@@ -151,8 +152,15 @@ public class GameServer implements Runnable, Constants{
 						NetPlayer player=(NetPlayer)game.getPlayers().get(pname);
 						player.addWins();
 						System.out.println(pname+" wins");
+						player.setStatus(false);
+						game.update(pname, player);
+						broadcast(game.toString());
+						//reset: new round
+						System.out.println("RESET SENT");
+						broadcast("RESET");
+						game.resetLife();
 					}
-					break;
+					// break;
 			}				  
 		}
 	}

@@ -96,6 +96,7 @@ public class NetPlayer implements Constants{
 	public int getWins(){
 		return this.wins;
 	}
+
 	/**
 	 * String representation. used for transfer over the network
 	 */
